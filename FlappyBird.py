@@ -137,7 +137,7 @@ class Pipe():
         
         self.top = 0
         self.bottom = 0
-        self.pipe_top = pygame.transform.flip(pipe_image, False, True)
+        self.pipe_top = pygame.transform.flip(pipe_image, False, True)  #flipped pipe image
         self.pipe_bottom = pipe_image
         
         self.passed = False
