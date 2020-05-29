@@ -10,21 +10,22 @@ win_width = 500
 win_height = 800
 
 GEN = 0
-
+#Setting the window of the game
 WIN = pygame.display.set_mode((win_width, win_height))
-
+#Setting name to the window
 pygame.display.set_caption("Flappy_Bird")
 
+#List of images of bird
 bird_images =  [pygame.transform.scale2x(pygame.image.load(os.path.join("Pics", "bird1.png"))),
                 pygame.transform.scale2x(pygame.image.load(os.path.join("Pics", "bird2.png"))),
                 pygame.transform.scale2x(pygame.image.load(os.path.join("Pics", "bird3.png")))]
-
+#Image of pipe
 pipe_image = pygame.transform.scale2x(pygame.image.load(os.path.join("Pics", "pipe.png")))
-
+#Image of Base
 base_image = pygame.transform.scale2x(pygame.image.load(os.path.join("Pics", "base.png")))
-
+#Background image
 background_image = pygame.transform.scale2x(pygame.image.load(os.path.join("Pics", "bg.png")))
-
+#Font to display data
 stat_font = pygame.font.SysFont("comicsans", 40)
 
 class Bird:
@@ -34,6 +35,7 @@ class Bird:
     rotation_velocity = 20
     animation_time = 5
 
+    #constructor of the class Bird
     def __init__(self, x, y):
 
         self.x = x
@@ -45,12 +47,14 @@ class Bird:
         self.image_count = 0
         self.image = self.images[0]
 
+    #method for jumping of the bird
     def jump(self):
 
         self.velocity = -10.5
         self.tick_count = 0
         self.height = self.y
 
+    #method for moving the bird
     def move(self):
 
         self.tick_count += 1
@@ -79,6 +83,7 @@ class Bird:
 
                 self.tilt -= self.rotation_velocity
 
+    #to draw the bird on the window
     def draw(self, win):
 
         self.image_count += 1
@@ -138,24 +143,28 @@ class Pipe():
         self.passed = False
         self.set_height()
 
+    #method to choose the height of the pipe
     def set_height(self):
 
-        self.height = random.randrange(50, 450)
+        self.height = random.randrange(50, 450)     #to choose random height for the pipes
 
         self.top = self.height - self.pipe_top.get_height()
 
         self.bottom = self.height + self.gap
 
+    #method to move the pipe
     def move(self):
 
         self.x -= self.velocity
 
+    #to draw the pipe on the game window
     def draw(self, win):
 
         win.blit(self.pipe_top, (self.x, self.top))
 
         win.blit(self.pipe_bottom, (self.x, self.bottom))
 
+    #collision of bird and pipe
     def collision(self, bird):
 
         bird_mask = bird.get_mask()
@@ -186,6 +195,7 @@ class Base:
         self.x1 = 0
         self.x2 = self.width
 
+    #method for moving the base with the pipes and bird
     def move(self):
 
         self.x1 -= self.velocity
@@ -199,11 +209,13 @@ class Base:
 
             self.x2 = self.x1 + self.width
 
+    #method to draw the base on the game window
     def draw(self, win):
 
         win.blit(self.image, (self.x1, self.y))
         win.blit(self.image, (self.x2, self.y))
 
+# method to draw the game window by calling the draw methods from respective classes
 def draw_window(win, birds, pipes, base, score, gen):
 
     win.blit(background_image, (0,0))
@@ -212,15 +224,15 @@ def draw_window(win, birds, pipes, base, score, gen):
 
         pipe.draw(win)
 
-    text = stat_font.render("Score : " + str(score), 1, (0,0,0))
+    text = stat_font.render("Score : " + str(score), 1, (0,0,0)) # to display the score
 
     win.blit(text, (win_width -10 - text.get_width(), 10))
 
-    text = stat_font.render("Gen : " + str(gen-1), 1, (0,0,0))
+    text = stat_font.render("Gen : " + str(gen-1), 1, (0,0,0)) # to display the current generation number
 
     win.blit(text, (10 , 10))
 
-    text = stat_font.render("Population : " + str(len(birds)), 1, (0,0,0))
+    text = stat_font.render("Population : " + str(len(birds)), 1, (0,0,0)) # to display current population in the current generation
 
     win.blit(text, (10 , 50))
 
@@ -231,6 +243,7 @@ def draw_window(win, birds, pipes, base, score, gen):
     
     pygame.display.update()
 
+# the main method
 def main(genomes, config):
 
     global GEN
@@ -258,13 +271,13 @@ def main(genomes, config):
 
     running = True
 
-    while running:
+    while running:      # the loop for running the game
 
         clock.tick(30)
 
         for event in pygame.event.get():
 
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:       #quit the game if quit is clicked
                 
                 running = False
 
@@ -287,7 +300,7 @@ def main(genomes, config):
         for x, bird in enumerate(birds):
 
             bird.move()
-            ge[x].fitness += 0.1
+            ge[x].fitness += 0.1    # increasing the fitness of each bird that is alive 
 
             output = nets[x].activate((bird.y, abs(bird.y - pipes[pipe_index].height), abs(bird.y - pipes[pipe_index].bottom)))
 
@@ -305,9 +318,9 @@ def main(genomes, config):
 
                 if pipe.collision(bird):
                     
-                    ge[x].fitness -= 1
+                    ge[x].fitness -= 1      # decreasing the fitness of the bird collided with the pipe
 
-                    birds.pop(x)
+                    birds.pop(x)        #removing the bird from the population
                     nets.pop(x)
                     ge.pop(x)
 
@@ -324,32 +337,34 @@ def main(genomes, config):
 
         if add_pipe:
 
-            score += 1
+            score += 1      # increasing the score for each pipe passed
             
             for g in ge:
 
-                g.fitness += 2
+                g.fitness += 2  # increasing the fitness of the birds passing the pipe to promote passage of more birds
 
             pipes.append(Pipe(win_width))
 
         for rem in removed:
             
-            pipes.remove(rem)
+            pipes.remove(rem)       #removing the pipes passed
 
         for x, bird in enumerate(birds):
 
             if bird.y + bird.image.get_height() -10 >= 730 or bird.y < -50:
                 
-                birds.pop(x)
+                ge[x].fitness -= 1  # decreasing the fitness of the birds colliding with follr or celling
+
+                birds.pop(x)    # removing the birds collided with floor or the celling
                 nets.pop(x)
                 ge.pop(x)
 
-        if score > 100:
+        if score > 100: #to quit the game if score of 100 is reached
 
             break
 
         base.move()
-        draw_window(win, birds, pipes, base, score, GEN)
+        draw_window(win, birds, pipes, base, score, GEN)    #calling the draw window method to draw different components
 
 def run(config_path):
     
@@ -363,12 +378,12 @@ def run(config_path):
 
     population.add_reporter(stats)
 
-    winner = population.run(main, 50)
+    winner = population.run(main, 50)   #calling the main function to decide the winner bird
 
 if __name__ == "__main__":
 
     local_dir  = os.path.dirname(__file__)
 
-    config_path = os.path.join(local_dir, "config-feedforward.txt")
+    config_path = os.path.join(local_dir, "config-feedforward.txt")     #setting the configuration file path
 
     run(config_path)
