@@ -2,7 +2,7 @@
 
 AI that learns to play classic "Flappy Bird" game by itself
 
-## How to use the project
+### How to use the project
 
 First clone or download and extract the project folder
 
